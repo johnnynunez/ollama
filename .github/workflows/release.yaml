@@ -1,8 +1,8 @@
 name: release
 
 env:
-  ROCM_WINDOWS_URL: https://download.amd.com/developer/eula/rocm-hub/AMD-Software-PRO-Edition-24.Q4-WinSvr2022-For-HIP.exe
-  MSYS2_URL: https://github.com/msys2/msys2-installer/releases/download/2024-07-27/msys2-x86_64-20240727.exe
+  ROCM_WINDOWS_URL: https://download.amd.com/developer/eula/rocm-hub/AMD-Software-PRO-Edition-24.Q4-WinSvr2025-For-HIP.exe
+  MSYS2_URL: https://github.com/msys2/msys2-installer/releases/download/2024-12-08/msys2-x86_64-20241208.exe
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
 jobs:
   # Full build of the Mac assets
   build-darwin:
-    runs-on: macos-13
+    runs-on: macos-latest
     environment: release
     steps:
       - uses: actions/checkout@v4
@@ -43,8 +43,8 @@ jobs:
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
           APPLE_ID: ${{ vars.APPLE_ID }}
-          SDKROOT: /Applications/Xcode_14.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
-          DEVELOPER_DIR: /Applications/Xcode_14.1.0.app/Contents/Developer
+          SDKROOT: /Applications/Xcode_16.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+          DEVELOPER_DIR: /Applications/Xcode_16.2.app/Contents/Developer
         run: |
           ./scripts/build_darwin.sh
 
@@ -82,8 +82,8 @@ jobs:
           go-version-file: go.mod
           cache: true
       - run: |
-          import-module 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll'
-          Enter-VsDevShell -vsinstallpath 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise' -skipautomaticlocation -DevCmdArguments '-arch=x64 -no_logo'
+          import-module 'C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll'
+          Enter-VsDevShell -vsinstallpath 'C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise' -skipautomaticlocation -DevCmdArguments '-arch=x64 -no_logo'
           if (!(gcc --version | select-string -quiet clang)) { throw "wrong gcc compiler detected - must be clang" }
           make dist
         name: make
@@ -139,8 +139,8 @@ jobs:
           echo "HIP_PATH=$(Resolve-Path 'C:\Program Files\AMD\ROCm\*\bin\clang.exe' | split-path | split-path | select -first 1)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: make rocm runner
         run: |
-          import-module 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll'
-          Enter-VsDevShell -vsinstallpath 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise' -skipautomaticlocation -DevCmdArguments '-arch=x64 -no_logo'
+          import-module 'C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll'
+          Enter-VsDevShell -vsinstallpath 'C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise' -skipautomaticlocation -DevCmdArguments '-arch=x64 -no_logo'
           if (!(gcc --version | select-string -quiet clang)) { throw "wrong gcc compiler detected - must be clang" }
           make help-runners
           make dist_rocm
@@ -177,7 +177,7 @@ jobs:
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
       - name: Install msys2
         run: |
-          $msys2_url="https://github.com/msys2/msys2-installer/releases/download/2024-07-27/msys2-x86_64-20240727.exe"
+          $msys2_url="https://github.com/msys2/msys2-installer/releases/download/2024-12-08/msys2-x86_64-20241208.exe"
           write-host "Downloading msys2"
           Invoke-WebRequest -Uri "${msys2_url}" -OutFile "${env:RUNNER_TEMP}\msys2.exe"
           write-host "Installing msys2"
@@ -225,8 +225,8 @@ jobs:
 
       - name: make cuda runner
         run: |
-          import-module 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll'
-          Enter-VsDevShell -vsinstallpath 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise' -skipautomaticlocation -DevCmdArguments '-arch=x64 -no_logo'
+          import-module 'C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll'
+          Enter-VsDevShell -vsinstallpath 'C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise' -skipautomaticlocation -DevCmdArguments '-arch=x64 -no_logo'
           if (!(gcc --version | select-string -quiet clang)) { throw "wrong gcc compiler detected - must be clang" }
           make dist_cuda_v$(($env:CUDA_PATH | split-path -leaf) -replace 'v(\d+).*', '$1')
       - uses: actions/upload-artifact@v4
@@ -257,7 +257,7 @@ jobs:
       # we download the sfx (7zip bundle) which isn't fully set up, but the binaries we need to build work
       - name: Install msys2 x64
         run: |
-          $url="https://github.com/msys2/msys2-installer/releases/download/2024-07-27/msys2-base-x86_64-20240727.sfx.exe"
+          $url="https://github.com/msys2/msys2-installer/releases/download/2024-12-08/msys2-base-x86_64-20241208.sfx.exe"
           write-host "Downloading MSYS2"
           Invoke-WebRequest -Uri "$url" -outfile "${env:RUNNER_TEMP}\msys2.exe"
           write-host "Installing msys2"
@@ -427,7 +427,7 @@ jobs:
           write-host "plugin installed"
       - name: Install msys2
         run: |
-          $msys2_url="https://github.com/msys2/msys2-installer/releases/download/2024-07-27/msys2-x86_64-20240727.exe"
+          $msys2_url="https://github.com/msys2/msys2-installer/releases/download/2024-12-08/msys2-x86_64-20241208.exe"
           write-host "Downloading msys2"
           Invoke-WebRequest -Uri "${msys2_url}" -OutFile "${env:RUNNER_TEMP}\msys2.exe"
           write-host "Installing msys2"
@@ -454,15 +454,15 @@ jobs:
           path: dist/windows-amd64/
       - uses: actions/download-artifact@v4
         with:
-          name: generate-windows-cuda-11.3
-          path: dist/windows-amd64/
-      - uses: actions/download-artifact@v4
-        with:
-          name: generate-windows-cuda-12.4
+          name: generate-windows-cuda-11.8
           path: dist/windows-amd64/
       - uses: actions/download-artifact@v4
         with:
           name: generate-windows-cuda-12.6
+          path: dist/windows-amd64/
+      - uses: actions/download-artifact@v4
+        with:
+          name: generate-windows-cuda-12.8
           path: dist/windows-amd64/
       - uses: actions/download-artifact@v4
         with:
@@ -473,8 +473,8 @@ jobs:
           name: windows-arm64
           path: dist
       - run: |
-          import-module 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll'
-          Enter-VsDevShell -vsinstallpath 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise' -skipautomaticlocation -DevCmdArguments '-arch=x64 -no_logo'
+          import-module 'C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll'
+          Enter-VsDevShell -vsinstallpath 'C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise' -skipautomaticlocation -DevCmdArguments '-arch=x64 -no_logo'
           $env:OLLAMA_SKIP_GENERATE="1"
           $env:ARCH="amd64"
           if (!(gcc --version | select-string -quiet clang)) { throw "wrong gcc compiler detected - must be clang" }
